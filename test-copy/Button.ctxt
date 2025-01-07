@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=Button
+comment1.params=text
+comment1.target=Button(java.lang.String)
+comment2.params=
+comment2.target=java.lang.String\ getLabel()
+comment3.params=
+comment3.target=void\ act()
+numComments=4

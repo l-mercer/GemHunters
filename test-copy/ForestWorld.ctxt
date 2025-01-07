@@ -1,0 +1,11 @@
+#BlueJ class context
+comment0.target=ForestWorld
+comment1.params=score\ health\ hasSword
+comment1.target=ForestWorld(int,\ int,\ boolean)
+comment2.params=
+comment2.target=void\ spawnOrcs()
+comment3.params=
+comment3.target=void\ act()
+comment4.params=
+comment4.target=void\ updateHUD()
+numComments=5

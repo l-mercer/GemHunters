@@ -5,19 +5,24 @@ public class MyWorld extends World {
     private Player player; // Reference to the Player object
     private GreenfootSound backgroundMusic = new GreenfootSound("video-game-music-loop-27629.mp3");
 
+    // Default constructor (no arguments)
     public MyWorld() {
-        // Create an 800x600 world with a cell size of 1x1 pixels
-        super(800, 445, 1);
+        this(0, 100); // Start with a score of 0 and health of 100
+    }
 
-        // Set the background image to Level-1.jpg
+    // New constructor that accepts an initial score and health
+    public MyWorld(int initialScore, int initialHealth) {
+        super(800, 445, 1); // Create the world
+        score = initialScore; // Set the initial score
+
+        // Reset the player's health
+        Player.setHealth(initialHealth);
+
+        prepare();
         setBackground("Assets/Levels/Level-1.jpg");
 
-
-        // Prepare the world
-        prepare();
-
-        // Set the background music volume and start looping
-        backgroundMusic.setVolume(55);
+        // Set background music
+        backgroundMusic.setVolume(70);
         backgroundMusic.playLoop();
     }
 
@@ -39,13 +44,23 @@ public class MyWorld extends World {
         // Add 5 gems at random positions
         for (int i = 0; i < 5; i++) {
             Gem gem = new Gem();
-            addObject(gem, Greenfoot.getRandomNumber(800), Greenfoot.getRandomNumber(600));
+            int x = Greenfoot.getRandomNumber(800);
+            int y = Greenfoot.getRandomNumber(600);
+            addObject(gem, x, y);
         }
 
         // Add 3 enemies at random positions
         for (int i = 0; i < 3; i++) {
             Enemy enemy = new Enemy();
-            addObject(enemy, Greenfoot.getRandomNumber(800), Greenfoot.getRandomNumber(600));
+            int x = Greenfoot.getRandomNumber(800);
+            int y = Greenfoot.getRandomNumber(600);
+            addObject(enemy, x, y);
+        }
+    }
+
+    private void checkNextLevel() {
+        if (getObjects(Gem.class).isEmpty()) { // All gems collected
+            Greenfoot.setWorld(new ShopWorld(score)); // Transition to the Shop World
         }
     }
 
@@ -57,5 +72,12 @@ public class MyWorld extends World {
     public void showGameOver() {
         Greenfoot.playSound("game-over.mp3"); // Play game-over sound
         showText("Game Over!", getWidth() / 2, getHeight() / 2); // Display Game Over message
+    }
+
+    public void act() {
+        showText("Health: " + Player.getHealth(), 70, 40);
+        showText("Score: " + score, 70, 20);
+
+        checkNextLevel(); // Check if it's time to transition to the shop
     }
 }
