@@ -2,11 +2,15 @@ import greenfoot.*;
 import java.util.List;
 
 public class Player extends Actor {
-    private static int health = 100; // Total health
-    private static int speed = 4;   // Movement speed
-    private static boolean hasSword = false; // Tracks if the player has purchased the sword
-    private boolean isAttacking = false; // Tracks if the player is attacking
-    private boolean attackTriggered = false; // Prevents retriggering attacks mid-animation
+    // Core attributes
+    private static int health = 100;
+    private static int speed = 4;
+    private static boolean hasSword = false;
+    
+    // Animation states
+    private boolean isAttacking = false;
+    private boolean isMoving = false;
+    private boolean facingRight = true;
 
     // Animation-related variables
     private GreenfootImage[] walkingFrames = new GreenfootImage[8]; // 8 walking frames
@@ -15,8 +19,6 @@ public class Player extends Actor {
     private int frameIndex = 0;                                     // Current animation frame index
     private int animationDelay = 5;                                // Delay between frame updates
     private int animationCounter = 0;                              // Counter to control frame rate
-    private boolean isMoving = false;                              // Tracks if the player is moving
-    private boolean facingRight = true;                            // Tracks the current direction
 
     public Player() {
         // Load and scale walking frames
@@ -47,14 +49,14 @@ public class Player extends Actor {
 
     public void act() {
         // Check for sword attack
-        if (hasSword && Greenfoot.isKeyDown("space") && !isAttacking) { 
+        if (Greenfoot.isKeyDown("space") && !isAttacking && hasSword) {  // Only allow attack if hasSword is true
             isAttacking = true;
             frameIndex = 0;
             
             // Check for nearby orcs when attacking
             List<Orc> nearbyOrcs = getObjectsInRange(50, Orc.class);
             for (Orc orc : nearbyOrcs) {
-                if (isFacing(orc)) { // Only hit orcs player is facing
+                if (isFacing(orc)) {
                     orc.takeDamage(25);
                 }
             }
@@ -129,10 +131,8 @@ public class Player extends Actor {
 
     private void animate() {
         animationCounter++;
-
         if (animationCounter >= animationDelay) {
             animationCounter = 0;
-
             if (isMoving) {
                 frameIndex = (frameIndex + 1) % walkingFrames.length;
                 setImage(walkingFrames[frameIndex]);
@@ -167,14 +167,21 @@ public class Player extends Actor {
         if (gem != null) {
             getWorld().removeObject(gem);
             Gem.playSound();
-            ((MyWorld) getWorld()).increaseScore();
+            // Check which world we're in and call the appropriate method
+            if (getWorld() instanceof MyWorld) {
+                ((MyWorld) getWorld()).increaseScore();
+            } else if (getWorld() instanceof ForestWorld) {
+                ((ForestWorld) getWorld()).increaseScore();
+            }
         }
 
         Actor enemy = getOneIntersectingObject(Enemy.class);
         if (enemy != null) {
             health -= 10;
             if (health <= 0) {
-                ((MyWorld) getWorld()).showGameOver();
+                if (getWorld() instanceof MyWorld) {
+                    ((MyWorld) getWorld()).showGameOver();
+                }
                 Greenfoot.stop();
             }
         }
@@ -212,5 +219,11 @@ public class Player extends Actor {
 
     public boolean isAttacking() {
         return isAttacking;
+    }
+
+    public static void resetStats() {
+        health = 100;
+        speed = 4;
+        hasSword = false;
     }
 }

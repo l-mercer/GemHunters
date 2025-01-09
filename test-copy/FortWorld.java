@@ -1,21 +1,21 @@
 import greenfoot.*;
 
-public class ForestWorld extends World {
+public class FortWorld extends World {
     private Player player;
     private int playerScore;
 
-    public ForestWorld(int score, int health, boolean hasSword) {
-        super(785, 441, 1); // Set world size
+    public FortWorld(int score, int health, boolean hasSword) {
+        super(1058, 531, 1); // Same size as other levels
 
-        setBackground("Assets/Levels/forest.jpg");
+        setBackground("Assets/Levels/FortLevel.jpg");
         
-        spawnOrcs();
+        spawnOrcs(); // We can keep orcs as enemies or modify this later
         spawnGems();
 
         // Set player score and health
         playerScore = score;
-        Player.setHealth(health); // Reset health
-        Player.setHasSword(hasSword); // Set the sword status
+        Player.setHealth(health);
+        Player.setHasSword(hasSword);
 
         // Add the player to the world
         player = new Player();
@@ -26,11 +26,10 @@ public class ForestWorld extends World {
         showText("Health: " + health, 70, 40);
     }
     
-     private void spawnOrcs() {
-        // Spawn 4 Orcs at different random positions
-        for (int i = 0; i < 4; i++) {
+    private void spawnOrcs() {
+        // Spawn 6 Orcs for increased difficulty
+        for (int i = 0; i < 6; i++) {
             Orc orc = new Orc();
-            // Random position within safe margins
             int x = 100 + Greenfoot.getRandomNumber(getWidth() - 200);
             int y = 100 + Greenfoot.getRandomNumber(getHeight() - 200);
             
@@ -40,12 +39,11 @@ public class ForestWorld extends World {
     }
 
     private void spawnGems() {
-        // Spawn 10 gems at random positions
-        for (int i = 0; i < 10; i++) {
+        // Spawn 15 gems for the final level
+        for (int i = 0; i < 15; i++) {
             Gem gem = new Gem();
-            // Random position within safe margins
-            int x = 50 + Greenfoot.getRandomNumber(getWidth() - 100);  // Keep 50px from edges
-            int y = 50 + Greenfoot.getRandomNumber(getHeight() - 100); // Keep 50px from edges
+            int x = 50 + Greenfoot.getRandomNumber(getWidth() - 100);
+            int y = 50 + Greenfoot.getRandomNumber(getHeight() - 100);
             addObject(gem, x, y);
         }
     }
@@ -56,21 +54,19 @@ public class ForestWorld extends World {
     }
 
     private void updateHUD() {
-        showText("Score: " + playerScore, 70, 20); // Update the score display
-        showText("Health: " + Player.getHealth(), 70, 40); // Continuously update health display
+        showText("Score: " + playerScore, 70, 20);
+        showText("Health: " + Player.getHealth(), 70, 40);
     }
 
     public void increaseScore() {
         playerScore++;
-        showText("Score: " + playerScore, 70, 20); // Update the score display
+        showText("Score: " + playerScore, 70, 20);
     }
 
     private void checkNextLevel() {
         if (getObjects(Gem.class).isEmpty()) {
-            ShopWorld.setCurrentLevel(2); // Set to level 2 complete
+            ShopWorld.setCurrentLevel(3); // Set to level 3 complete
             Greenfoot.setWorld(new ShopWorld(playerScore));
         }
     }
-}
-
-
+} 

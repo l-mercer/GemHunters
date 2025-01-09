@@ -8,6 +8,8 @@ public class MyWorld extends World {
     // Default constructor (no arguments)
     public MyWorld() {
         this(0, 100); // Start with a score of 0 and health of 100
+        Player.resetStats(); // Reset all player stats when starting a new game
+        ShopWorld.resetLevelCounter(); // Add this line
     }
 
     // New constructor that accepts an initial score and health
@@ -59,8 +61,9 @@ public class MyWorld extends World {
     }
 
     private void checkNextLevel() {
-        if (getObjects(Gem.class).isEmpty()) { // All gems collected
-            Greenfoot.setWorld(new ShopWorld(score)); // Transition to the Shop World
+        if (getObjects(Gem.class).isEmpty()) {
+            ShopWorld.setCurrentLevel(1); // Set to level 1 complete
+            Greenfoot.setWorld(new ShopWorld(score));
         }
     }
 

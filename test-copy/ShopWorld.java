@@ -4,14 +4,12 @@ import java.util.ArrayList;
 public class ShopWorld extends World {
     private int playerScore;
     private boolean shopMenuVisible = false; // Track if the shop menu is open
+    private static int currentLevel = 1; // Track which level was just completed
 
     public ShopWorld(int score) {
         super(852, 496, 1);
         setBackground("Assets/Levels/townv2.jpg"); // Town background
         playerScore = score;
-
-        // Reset health to 100 when entering the shop
-        Player.setHealth(100);
 
         // Display health and gems in the top-left corner
         updateHUD();
@@ -42,11 +40,11 @@ public class ShopWorld extends World {
     }
 
     private void openShopMenu() {
-        shopMenuVisible = true; // Menu is now visible
+        shopMenuVisible = true;
 
         // Draw semi-transparent overlay
         GreenfootImage overlay = new GreenfootImage(getWidth(), getHeight());
-        overlay.setColor(new Color(0, 0, 0, 150)); // Semi-transparent black
+        overlay.setColor(new Color(0, 0, 0, 150));
         overlay.fillRect(0, 0, getWidth(), getHeight());
         getBackground().drawImage(overlay, 0, 0);
 
@@ -54,43 +52,71 @@ public class ShopWorld extends World {
         showText("SHOP MENU", getWidth() / 2, 100);
         showText("Your Gems: " + playerScore, getWidth() / 2, 140);
 
-        // Add buttons
-    Button buyHealthButton = new Button("Buy Health (5 Gems)");
-    Button speedBoostButton = new Button("Speed Boost (10 Gems)");
-    Button buySwordButton = new Button("Buy Sword (5 Gems)"); // New button
-    Button closeButton = new Button("Close");
-    
-    addObject(buyHealthButton, getWidth() / 2, 200);
-    addObject(speedBoostButton, getWidth() / 2, 250);
-    addObject(buySwordButton, getWidth() / 2, 300); // Add sword button
-    addObject(closeButton, getWidth() / 2, 350);
+        int yPosition = 200;  // Starting Y position for buttons
+
+        // Only show health upgrade button if health is less than max (e.g., 300)
+        if (Player.getHealth() < 300) {
+            Button buyHealthButton = new Button("Buy Health (5 Gems)");
+            addObject(buyHealthButton, getWidth() / 2, yPosition);
+            yPosition += 50;
+        }
+
+        // Speed boost option is always available
+        Button speedBoostButton = new Button("Speed Boost (10 Gems)");
+        addObject(speedBoostButton, getWidth() / 2, yPosition);
+        yPosition += 50;
+
+        // Only show sword button if player doesn't have it
+        if (!Player.hasSword()) {
+            Button buySwordButton = new Button("Buy Sword (5 Gems)");
+            addObject(buySwordButton, getWidth() / 2, yPosition);
+            yPosition += 50;
+        }
+
+        Button closeButton = new Button("Close");
+        addObject(closeButton, getWidth() / 2, yPosition);
     }
 
-public void handleButtonClick(Button button) {
-    String label = button.getLabel();
+    public void handleButtonClick(Button button) {
+        String label = button.getLabel();
 
-    if (label.equals("Buy Health (5 Gems)") && playerScore >= 5) {
-        playerScore -= 5;
-        Player.upgradeHealth(100);
-        showText("Your Gems: " + playerScore, getWidth() / 2, 140);
-        showText("Health: " + Player.getHealth(), getWidth() / 2, 180);
-
-    } else if (label.equals("Speed Boost (10 Gems)") && playerScore >= 10) {
-        playerScore -= 10;
-        Player.upgradeSpeed(1);
-        showText("Your Gems: " + playerScore, getWidth() / 2, 140);
-
-    } else if (label.equals("Buy Sword (5 Gems)") && playerScore >= 5) {
-        playerScore -= 5;
-        Player.setHasSword(true);
-        showText("Your Gems: " + playerScore, getWidth() / 2, 140);
-    } else if (label.equals("Close")) {
-        closeShopMenu();
-    } else if (label.equals("Next Level")) {
-        Greenfoot.setWorld(new ForestWorld(playerScore, Player.getHealth(), Player.hasSword()));
+        if (label.equals("Next Level")) {
+            switch(currentLevel) {
+                case 1:
+                    // After first level, go to level 2 (Forest)
+                    Greenfoot.setWorld(new ForestWorld(playerScore, Player.getHealth(), Player.hasSword()));
+                    break;
+                case 2:
+                    // After second level, go to level 3 (Fort)
+                    Greenfoot.setWorld(new FortWorld(playerScore, Player.getHealth(), Player.hasSword()));
+                    break;
+                case 3:
+                    // After final level, start new game
+                    currentLevel = 0; // Reset to 0 because MyWorld will increment it
+                    Greenfoot.setWorld(new MyWorld());
+                    break;
+            }
+        } else if (label.equals("Buy Health (5 Gems)") && playerScore >= 5) {
+            playerScore -= 5;
+            Player.upgradeHealth(100);
+            updateShopDisplay();
+        } else if (label.equals("Speed Boost (10 Gems)") && playerScore >= 10) {
+            playerScore -= 10;
+            Player.upgradeSpeed(1);
+            updateShopDisplay();
+        } else if (label.equals("Buy Sword (5 Gems)") && playerScore >= 5) {
+            playerScore -= 5;
+            Player.setHasSword(true);
+            updateShopDisplay();
+        } else if (label.equals("Close")) {
+            closeShopMenu();
+        }
     }
-}
 
+    private void updateShopDisplay() {
+        showText("Your Gems: " + playerScore, getWidth() / 2, 140);
+        updateHUD();
+    }
 
     private void updateHUD() {
         showText("Health: " + Player.getHealth(), 70, 20); // Display health in the top-left corner
@@ -106,5 +132,14 @@ public void handleButtonClick(Button button) {
         // Add "Next Level" button
         Button nextLevelButton = new Button("Next Level");
         addObject(nextLevelButton, getWidth() / 2, getHeight() - 50); // Place near the bottom
+    }
+
+    // Add this method to reset level counter when starting new game
+    public static void resetLevelCounter() {
+        currentLevel = 1;
+    }
+
+    public static void setCurrentLevel(int level) {
+        currentLevel = level;
     }
 }

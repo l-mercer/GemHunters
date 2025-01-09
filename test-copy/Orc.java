@@ -13,23 +13,27 @@ public class Orc extends Actor {
     private int attackCooldown = 0;
     private int moveSpeed = 1;
     private int turnCounter = 0;
+    private boolean facingRight = true;
+    private String currentDirection = "right"; // Can be "up", "down", "left", "right"
 
     public Orc() {
-        // Load walk frames
+        // Load walk frames (no flipping - keep original orientation)
         for (int i = 1; i <= 8; i++) {
             GreenfootImage img = new GreenfootImage("Orc/Orc_Walk/orc_walk_frame_" + i + ".png");
-            img.scale(100, 100);
+            img.scale(52, 42);
             walkFrames.add(img);
         }
         
-        // Load attack frames
+        // Load attack frames (no flipping - keep original orientation)
         for (int i = 1; i <= 6; i++) {
             GreenfootImage img = new GreenfootImage("Orc/Orc_Attack/orc_attack_frame_" + i + ".png");
-            img.scale(100, 100);
+            img.scale(52, 52);
             attackFrames.add(img);
         }
         
         setImage(walkFrames.get(0));
+        facingRight = true;  // Changed: Start facing right (original sprite orientation)
+        currentDirection = "right"; // Changed: Start moving right
     }
 
     public void act() {
@@ -48,48 +52,102 @@ public class Orc extends Actor {
 
     public void startWalking() {
         currentAction = "walk";
-        // Set random initial direction
-        setRotation(Greenfoot.getRandomNumber(360));
+        // Instead of random rotation, pick a random direction
+        int direction = Greenfoot.getRandomNumber(4);
+        switch(direction) {
+            case 0: // Right
+                currentDirection = "right";
+                if (!facingRight) {  // CHANGED: Flip to face right when moving right
+                    flipSprites();
+                    facingRight = true;
+                }
+                break;
+            case 1: // Down
+                currentDirection = "down";
+                break;
+            case 2: // Left
+                currentDirection = "left";
+                if (facingRight) {  // CHANGED: Flip to face left when moving left
+                    flipSprites();
+                    facingRight = false;
+                }
+                break;
+            case 3: // Up
+                currentDirection = "up";
+                break;
+        }
     }
 
     private void randomMovement() {
         turnCounter++;
         
-        // More frequent but gentler turns
-        if (turnCounter >= 20) { // Every ~20 acts
+        if (turnCounter >= 60) {
             turnCounter = 0;
-            // Small random turn (-20 to +20 degrees)
-            turn(Greenfoot.getRandomNumber(41) - 20);
+            
+            int direction = Greenfoot.getRandomNumber(4);
+            switch(direction) {
+                case 0: // Right
+                    currentDirection = "right";
+                    if (!facingRight) {  // CHANGED: Flip to face right when moving right
+                        flipSprites();
+                        facingRight = true;
+                    }
+                    break;
+                case 1: // Down
+                    currentDirection = "down";
+                    break;
+                case 2: // Left
+                    currentDirection = "left";
+                    if (facingRight) {  // CHANGED: Flip to face left when moving left
+                        flipSprites();
+                        facingRight = false;
+                    }
+                    break;
+                case 3: // Up
+                    currentDirection = "up";
+                    break;
+            }
         }
         
-        // Random chance for additional direction changes
-        if (Greenfoot.getRandomNumber(100) < 3) {
-            turn(Greenfoot.getRandomNumber(41) - 20);
+        // Move based on direction without rotating the sprite
+        switch(currentDirection) {
+            case "right":
+                setLocation(getX() + moveSpeed, getY());
+                break;
+            case "left":
+                setLocation(getX() - moveSpeed, getY());
+                break;
+            case "up":
+                setLocation(getX(), getY() - moveSpeed);
+                break;
+            case "down":
+                setLocation(getX(), getY() + moveSpeed);
+                break;
         }
-        
-        // Move forward
-        move(moveSpeed);
         
         // World edge checking
         World world = getWorld();
         if (world != null) {
             int margin = 50;
             
-            // If near edges, turn more dramatically
-            if (getX() <= margin || getX() >= world.getWidth() - margin ||
-                getY() <= margin || getY() >= world.getHeight() - margin) {
-                
-                // Turn away from edges
-                if (getX() <= margin) {
-                    setRotation(0 + Greenfoot.getRandomNumber(180));
-                } else if (getX() >= world.getWidth() - margin) {
-                    setRotation(180 + Greenfoot.getRandomNumber(180));
+            // If near edges, change direction
+            if (getX() <= margin) {
+                currentDirection = "right";
+                if (!facingRight) {  // CHANGED: Flip to face right when moving right
+                    flipSprites();
+                    facingRight = true;
                 }
-                if (getY() <= margin) {
-                    setRotation(90 + Greenfoot.getRandomNumber(180));
-                } else if (getY() >= world.getHeight() - margin) {
-                    setRotation(270 + Greenfoot.getRandomNumber(180));
+            } else if (getX() >= world.getWidth() - margin) {
+                currentDirection = "left";
+                if (facingRight) {  // CHANGED: Flip to face left when moving left
+                    flipSprites();
+                    facingRight = false;
                 }
+            }
+            if (getY() <= margin) {
+                currentDirection = "down";
+            } else if (getY() >= world.getHeight() - margin) {
+                currentDirection = "up";
             }
         }
     }
@@ -148,6 +206,18 @@ public class Orc extends Actor {
         health -= amount;
         if (health <= 0) {
             getWorld().removeObject(this);
+        }
+    }
+
+    private void flipSprites() {
+        // Flip all walk frames
+        for (GreenfootImage img : walkFrames) {
+            img.mirrorHorizontally();
+        }
+        
+        // Flip all attack frames
+        for (GreenfootImage img : attackFrames) {
+            img.mirrorHorizontally();
         }
     }
 }

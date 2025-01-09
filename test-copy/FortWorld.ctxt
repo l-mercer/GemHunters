@@ -1,7 +1,7 @@
 #BlueJ class context
-comment0.target=ForestWorld
+comment0.target=FortWorld
 comment1.params=score\ health\ hasSword
-comment1.target=ForestWorld(int,\ int,\ boolean)
+comment1.target=FortWorld(int,\ int,\ boolean)
 comment2.params=
 comment2.target=void\ spawnOrcs()
 comment3.params=
