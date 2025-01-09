@@ -8,26 +8,26 @@ public class FortWorld extends World {
         super(1058, 531, 1);
         setBackground("Assets/Levels/FortLevel.jpg");
         
-        playerScore = score;  // Start with previous score
+        playerScore = score;  // Gets the score from the previous level and starts the game off with that 
         Player.setHealth(health);
         Player.setHasSword(hasSword);
 
         spawnOrcs();
         spawnGems();
 
-        // Add the player to the world
+        // adds the player to this world 
         player = new Player();
         addObject(player, getWidth() / 2, getHeight() / 2);
 
-        // Display initial score and health
+        // will display the HUD for health and score 
         updateHUD();
     }
     
     private void spawnOrcs() {
-        // Spawn 11 Orcs (increased from 6)
+        // Spawns 11 orcs on this level 
         for (int i = 0; i < 11; i++) {
-            Orc orc = new Orc(true);  // Create faster orcs
-            // Random position within safe margins
+            Orc orc = new Orc(true);  // Takes the orcs and makes it so they are double the speed of the ones from the previous level 
+            // Spawns orcs within a random position on the world  
             int x = 100 + Greenfoot.getRandomNumber(getWidth() - 200);
             int y = 100 + Greenfoot.getRandomNumber(getHeight() - 200);
             
@@ -37,7 +37,7 @@ public class FortWorld extends World {
     }
 
     private void spawnGems() {
-        // Spawn 15 gems for the final level
+        // Spawns 15 gems for this level 
         for (int i = 0; i < 15; i++) {
             Gem gem = new Gem();
             int x = 50 + Greenfoot.getRandomNumber(getWidth() - 100);
@@ -58,9 +58,9 @@ public class FortWorld extends World {
 
     public void increaseScore() {
         playerScore++;
-        updateHUD();  // Make sure HUD updates when score changes
+        updateHUD();  // Makes sure that when the player collects a gem it updates the HUD 
         
-        // Check if all gems are collected
+        // Sees if the player has collects all the gems on the map
         if (getObjects(Gem.class).isEmpty()) {
             ShopWorld.setCurrentLevel(3);
             Greenfoot.setWorld(new ShopWorld(playerScore));

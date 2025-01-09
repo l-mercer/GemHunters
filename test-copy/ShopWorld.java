@@ -3,15 +3,15 @@ import java.util.ArrayList;
 
 public class ShopWorld extends World {
     private int playerScore;
-    private boolean shopMenuVisible = false; // Track if the shop menu is open
-    private static int currentLevel = 1; // Track which level was just completed
+    private boolean shopMenuVisible = false; // See if the shop menu is open
+    private static int currentLevel = 1; // tracks the level the player is at 
 
     public ShopWorld(int score) {
         super(852, 496, 1);
-        setBackground("Assets/Levels/townv2.jpg"); // Town background
+        setBackground("Assets/Levels/townv2.jpg"); // sets background img
         playerScore = score;
 
-        // Display health and gems in the top-left corner
+
         updateHUD();
 
         showText("Click on the barn to open the shop!", getWidth() / 2, 50);
@@ -19,21 +19,20 @@ public class ShopWorld extends World {
 
     public void act() {
         if (!shopMenuVisible) {
-            checkBuildingInteraction(); // Check for shop interaction only when menu is closed
+            checkBuildingInteraction(); 
         }
     }
 
     private void checkBuildingInteraction() {
-        // Check for a mouse click within the barn's area
+        // Check for a mouse click
         if (Greenfoot.mouseClicked(null)) {
             MouseInfo mouse = Greenfoot.getMouseInfo();
             if (mouse != null) {
                 int x = mouse.getX();
                 int y = mouse.getY();
 
-                // Shop area coordinates
                 if (x >= 365 && x <= 515 && y >= 225 && y <= 359) {
-                    openShopMenu(); // Open the shop menu
+                    openShopMenu(); 
                 }
             }
         }
@@ -42,26 +41,24 @@ public class ShopWorld extends World {
     private void openShopMenu() {
         shopMenuVisible = true;
 
-        // Draw semi-transparent overlay
         GreenfootImage overlay = new GreenfootImage(getWidth(), getHeight());
         overlay.setColor(new Color(0, 0, 0, 150));
         overlay.fillRect(0, 0, getWidth(), getHeight());
         getBackground().drawImage(overlay, 0, 0);
 
-        // Add text for the shop menu
+        // Adds shop menu text 
         showText("SHOP MENU", getWidth() / 2, 100);
         showText("Your Gems: " + playerScore, getWidth() / 2, 140);
 
-        int yPosition = 200;  // Starting Y position for buttons
+        int yPosition = 200;  // the y position for the button
 
-        // Only show health upgrade button if health is less than max (e.g., 300)
+        // will only show health upgrade if the player has less that 300 hp
         if (Player.getHealth() < 300) {
             Button buyHealthButton = new Button("Buy Health (5 Gems)");
             addObject(buyHealthButton, getWidth() / 2, yPosition);
             yPosition += 50;
         }
 
-        // Speed boost option is always available
         Button speedBoostButton = new Button("Speed Boost (10 Gems)");
         addObject(speedBoostButton, getWidth() / 2, yPosition);
         yPosition += 50;
@@ -120,22 +117,22 @@ public class ShopWorld extends World {
     }
 
     private void updateHUD() {
-        showText("Health: " + Player.getHealth(), 70, 20); // Display health in the top-left corner
-        showText("Your Gems: " + playerScore, 70, 50); // Display gems in the top-left corner
+        showText("Health: " + Player.getHealth(), 70, 20); // displays the players health 
+        showText("Your Gems: " + playerScore, 70, 50); // displays the players score 
     }
 
     private void closeShopMenu() {
         shopMenuVisible = false; // Menu is now closed
-        removeObjects(getObjects(Button.class)); // Remove all buttons
-        showText("", getWidth() / 2, 100); // Clear shop menu text
-        showText("", getWidth() / 2, 140); // Clear gems text
+        removeObjects(getObjects(Button.class));
+        showText("", getWidth() / 2, 100);
+        showText("", getWidth() / 2, 140); 
 
-        // Add "Next Level" button
+        // adds the next level button
         Button nextLevelButton = new Button("Next Level");
         addObject(nextLevelButton, getWidth() / 2, getHeight() - 50); // Place near the bottom
     }
 
-    // Add this method to reset level counter when starting new game
+  
     public static void resetLevelCounter() {
         currentLevel = 1;
     }

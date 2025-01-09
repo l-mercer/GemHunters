@@ -6,10 +6,10 @@ public class Button extends Actor {
     public Button(String text) {
         label = text;
 
-        // Create button appearance
-        GreenfootImage img = new GreenfootImage(200, 50); // Button size
+        // creats how the buttin looks
+        GreenfootImage img = new GreenfootImage(200, 50); // sets the sixe of the button
         img.setColor(Color.LIGHT_GRAY);
-        img.fillRect(0, 0, 200, 50); // Button background
+        img.fillRect(0, 0, 200, 50); // background for the button
         img.setColor(Color.BLACK);
         img.drawRect(0, 0, 200, 50); // Button border
         img.drawString(label, 20, 30); // Button text
@@ -21,7 +21,7 @@ public class Button extends Actor {
     }
 
     public void act() {
-        // Detect mouse clicks on the button
+        // Dsees if the player has clicked on a button
         if (Greenfoot.mouseClicked(this)) {
             if (getWorld() instanceof ShopWorld) {
                 ((ShopWorld) getWorld()).handleButtonClick(this);

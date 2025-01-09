@@ -1,4 +1,4 @@
-import greenfoot.*; // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.*; 
 import java.util.ArrayList;
 
 public class Orc extends Actor {
@@ -14,25 +14,25 @@ public class Orc extends Actor {
     private int moveSpeed = 2;
     private int turnCounter = 0;
     private boolean facingRight = true;
-    private String currentDirection = "right"; // Can be "up", "down", "left", "right"
-    private int minMoveTime = 120;  // Minimum time to move in one direction (2 seconds)
-    private int maxMoveTime = 240;  // Maximum time to move in one direction (4 seconds)
-    private int currentMoveTime;    // How long to move in current direction
-    private int detectionRange = 200;  // How far the orc can "see" the player
-    private int followSpeed = 1;      // Speed when following player
-    private int wanderSpeed = 1;      // Speed when wandering
-    private int moveCounter = 0;      // Counter for slowing down movement
-    private int moveDelay = 2;        // Default delay for normal speed
+    private String currentDirection = "right"; 
+    private int minMoveTime = 120;  // min time to move a dirrection
+    private int maxMoveTime = 240;  // max time to move a direction
+    private int currentMoveTime;    // how long it takes to move a direction
+    private int detectionRange = 200;  // the distance the orc can see the player
+    private int followSpeed = 1;      // speed or orc when following the player
+    private int wanderSpeed = 1;      // normal speed
+    private int moveCounter = 0;      // counter for slowing down movement
+    private int moveDelay = 2;        // delay for normal speed
 
     public Orc(boolean isFaster) {
-        // Load walk frames (no flipping - keep original orientation)
+        // load walking animations
         for (int i = 1; i <= 8; i++) {
             GreenfootImage img = new GreenfootImage("Orc/Orc_Walk/orc_walk_frame_" + i + ".png");
             img.scale(52, 42);
             walkFrames.add(img);
         }
         
-        // Load attack frames (no flipping - keep original orientation)
+        // loads attackining animations
         for (int i = 1; i <= 6; i++) {
             GreenfootImage img = new GreenfootImage("Orc/Orc_Attack/orc_attack_frame_" + i + ".png");
             img.scale(52, 52);
@@ -40,18 +40,17 @@ public class Orc extends Actor {
         }
         
         setImage(walkFrames.get(0));
-        facingRight = true;  // Changed: Start facing right (original sprite orientation)
-        currentDirection = "right"; // Changed: Start moving right
+        facingRight = true; 
+        currentDirection = "right"; 
         currentMoveTime = minMoveTime + Greenfoot.getRandomNumber(maxMoveTime - minMoveTime);
         
         if (isFaster) {
-            moveDelay = 1;  // Move twice as fast
+            moveDelay = 1;  // sets it to move faster on the harder levels 
         }
     }
 
-    // Add default constructor
     public Orc() {
-        this(false);  // Normal speed by default
+        this(false);  // sets orc to normal speed by default 
     }
 
     public void act() {
@@ -70,12 +69,12 @@ public class Orc extends Actor {
 
     public void startWalking() {
         currentAction = "walk";
-        // Instead of random rotation, pick a random direction
+        
         int direction = Greenfoot.getRandomNumber(4);
         switch(direction) {
             case 0: // Right
                 currentDirection = "right";
-                if (!facingRight) {  // CHANGED: Flip to face right when moving right
+                if (!facingRight) { 
                     flipSprites();
                     facingRight = true;
                 }
@@ -85,7 +84,7 @@ public class Orc extends Actor {
                 break;
             case 2: // Left
                 currentDirection = "left";
-                if (facingRight) {  // CHANGED: Flip to face left when moving left
+                if (facingRight) { 
                     flipSprites();
                     facingRight = false;
                 }
@@ -99,14 +98,14 @@ public class Orc extends Actor {
     private void randomMovement() {
         Player player = getNearestPlayer();
         
-        // If player is within detection range, follow them
+        // if player is near by orc will follow the player
         if (player != null && getDistance(player) < detectionRange) {
             followPlayer(player);
         } else {
-            wander();  // Normal random movement when no player is near
+            wander();  // normal movement if the player isnt there 
         }
         
-        // Keep the edge checking
+        // checks for edges of the map 
         checkWorldBounds();
     }
 
@@ -117,11 +116,11 @@ public class Orc extends Actor {
     }
 
     private void followPlayer(Player player) {
-        // Calculate direction to player
+        // calculates the direction to goto if the player is there 
         int dx = player.getX() - getX();
         int dy = player.getY() - getY();
         
-        // Update facing direction based on player position
+        // updates the orcs facing direction to where the player is 
         if (dx > 0 && !facingRight) {
             flipSprites();
             facingRight = true;
@@ -133,7 +132,7 @@ public class Orc extends Actor {
         moveCounter++;
         if (moveCounter >= moveDelay) {
             moveCounter = 0;
-            // Move towards player
+            // moves towards the player
             if (Math.abs(dx) > followSpeed) {
                 setLocation(getX() + (dx > 0 ? followSpeed : -followSpeed), getY());
             }
@@ -146,18 +145,18 @@ public class Orc extends Actor {
     private void wander() {
         turnCounter++;
         
-        // Only change direction after moving for the random time period
+        // changes direction after moving in a direction for a period of time 
         if (turnCounter >= currentMoveTime) {
             turnCounter = 0;
             currentMoveTime = minMoveTime + Greenfoot.getRandomNumber(maxMoveTime - minMoveTime);
             
-            // 70% chance to keep moving in same direction
+            // 70% it keeps moving in the same direction
             if (Greenfoot.getRandomNumber(100) > 70) {
                 changeDirection();
             }
         }
         
-        // Move in current direction at wander speed
+        // moves in the currect direction 
         move();
     }
 
@@ -270,13 +269,13 @@ public class Orc extends Actor {
             if (currentFrame >= currentFrames.size()) {
                 currentFrame = 0;
                 
-                // Handle end of attack animation
+                // handles the end of the orc attacks animation and deals the damage 
                 if (currentAction.equals("attack")) {
                     Player player = (Player) getOneObjectAtOffset(0, 0, Player.class);
                     if (player != null) {
                         player.takeDamage(damage);
                     }
-                    attackCooldown = 100; // 4 second cooldown
+                    attackCooldown = 100; // 4 second cool down on each attack 
                     currentAction = "walk";
                 }
             }
@@ -286,7 +285,7 @@ public class Orc extends Actor {
     }
 
     private void checkSwordHit() {
-        if (currentAction.equals("walk")) {  // Only take damage when not attacking
+        if (currentAction.equals("walk")) {  // only takes damage when not attacking
             Player player = (Player) getOneObjectAtOffset(0, 0, Player.class);
             if (player != null && player.isAttacking() && player.hasSword()) {
                 takeDamage(25);
@@ -302,12 +301,12 @@ public class Orc extends Actor {
     }
 
     private void flipSprites() {
-        // Flip all walk frames
+        // flips the walking frames
         for (GreenfootImage img : walkFrames) {
             img.mirrorHorizontally();
         }
         
-        // Flip all attack frames
+        // flips attacking frames
         for (GreenfootImage img : attackFrames) {
             img.mirrorHorizontally();
         }

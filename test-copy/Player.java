@@ -2,44 +2,44 @@ import greenfoot.*;
 import java.util.List;
 
 public class Player extends Actor {
-    // Core attributes
+    
     private static int health = 100;
     private static int speed = 4;
     private static boolean hasSword = false;
     
-    // Animation states
+   
     private boolean isAttacking = false;
     private boolean isMoving = false;
     private boolean facingRight = true;
 
-    // Animation-related variables
+  
     private GreenfootImage[] walkingFrames = new GreenfootImage[8]; // 8 walking frames
     private GreenfootImage[] idleFrames = new GreenfootImage[6];    // 6 idle frames
     private GreenfootImage[] attackFrames = new GreenfootImage[6];  // 6 attack frames
-    private int frameIndex = 0;                                     // Current animation frame index
+    private int frameIndex = 0;                                     // Current animation the player is at
     private int animationDelay = 5;                                // Delay between frame updates
     private int animationCounter = 0;                              // Counter to control frame rate
 
     public Player() {
-        // Load and scale walking frames
+        // loads walking animations and sets the size of the player 
         for (int i = 0; i < walkingFrames.length; i++) {
             walkingFrames[i] = new GreenfootImage("Assets/Character/frame_" + (i + 1) + ".png");
-            walkingFrames[i].scale(42, 42); // Scale to 42x42 pixels
+            walkingFrames[i].scale(42, 42); // 42x42 pixles 
         }
 
-        // Load and scale idle frames
+        // loads idle animations and sets the size 
         for (int i = 0; i < idleFrames.length; i++) {
             idleFrames[i] = new GreenfootImage("Assets/Idle/idle_frame_" + (i + 1) + ".png");
-            idleFrames[i].scale(42, 42); // Scale to 42x42 pixels
+            idleFrames[i].scale(42, 42); // 42x42 pixels
         }
 
-        // Load and scale attack frames
+        // loads the attacking animations and sets the size 
         for (int i = 0; i < attackFrames.length; i++) {
             attackFrames[i] = new GreenfootImage("Assets/Character/character_attack_frame_" + (i + 1) + ".png");
             attackFrames[i].scale(42, 42);
         }
 
-        // Set the initial image to the first idle frame
+        // sets the first image to the first frame 
         setImage(idleFrames[0]);
     }
 
@@ -48,12 +48,12 @@ public class Player extends Actor {
     }
 
     public void act() {
-        // Check for sword attack
-        if (Greenfoot.isKeyDown("space") && !isAttacking && hasSword) {  // Only allow attack if hasSword is true
+        // checks for if the player has used sword attack
+        if (Greenfoot.isKeyDown("space") && !isAttacking && hasSword) {  // Only allows it if the player has actually bought the sword 
             isAttacking = true;
             frameIndex = 0;
             
-            // Check for nearby orcs when attacking
+            // checks to see if their is a orc near by when attacking 
             List<Orc> nearbyOrcs = getObjectsInRange(50, Orc.class);
             for (Orc orc : nearbyOrcs) {
                 if (isFacing(orc)) {
@@ -62,9 +62,9 @@ public class Player extends Actor {
             }
         }
 
-        // Handle attack or regular actions
+        // handles attack and does the animation for it 
         if (isAttacking) {
-            animateAttack(); // Play attack animation
+            animateAttack(); // Plays attack animation
         } else {
             move();
             animate();
@@ -82,35 +82,35 @@ public class Player extends Actor {
     }
 
     private void move() {
-        isMoving = false; // Assume no movement until keys are pressed
+        isMoving = false; // assumes there is no movement unless a key is pressed 
 
         if (Greenfoot.isKeyDown("right")) {
-            setLocation(getX() + speed, getY()); // Adjust x-coordinate, keep y-coordinate
+            setLocation(getX() + speed, getY()); // moves the player right 
             isMoving = true;
         
             if (!facingRight) {
-                flipImages(); // Flip to face right
+                flipImages(); // flips image to face right 
                 facingRight = true;
             }
         }
 
         if (Greenfoot.isKeyDown("left")) {
-            setLocation(getX() - speed, getY()); // Adjust x-coordinate, keep y-coordinate
+            setLocation(getX() - speed, getY()); // moves the player left 
             isMoving = true;
         
             if (facingRight) {
-                flipImages(); // Flip to face left
+                flipImages(); // Flips image  to face left
                 facingRight = false;
             }
         }
         
         if (Greenfoot.isKeyDown("up")) {
-            setLocation(getX(), getY() - speed); // Keep x-coordinate, adjust y-coordinate
+            setLocation(getX(), getY() - speed); // moves the player up 
             isMoving = true;
         }
         
         if (Greenfoot.isKeyDown("down")) {
-            setLocation(getX(), getY() + speed); // Keep x-coordinate, adjust y-coordinate
+            setLocation(getX(), getY() + speed); // moves teh play down 
             isMoving = true;
         }
     }
@@ -151,8 +151,8 @@ public class Player extends Actor {
                 setImage(attackFrames[frameIndex]);
                 frameIndex++;
             } else {
-                isAttacking = false; // End the attack animation
-                frameIndex = 0; // Reset animation frame index
+                isAttacking = false; // ends players attack animation
+                frameIndex = 0; // resets the players animation frame 
             }
         }
     }
@@ -176,7 +176,7 @@ public class Player extends Actor {
             getWorld().removeObject(gem);
             Gem.playSound();
             
-            // Make sure to increase score for any world type
+            // make sure the score is increased for the worlds 
             if (getWorld() instanceof MyWorld) {
                 ((MyWorld) getWorld()).increaseScore();
             } else if (getWorld() instanceof ForestWorld) {

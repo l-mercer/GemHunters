@@ -6,7 +6,7 @@ public class GrassWorld extends World {
     private int playerScore;
     private int totalGemsCollected = 0;
     private int gemSpawnTimer = 0;
-    private final int GEM_SPAWN_DELAY = 250; // About 10 seconds (25 acts per second)
+    private final int GEM_SPAWN_DELAY = 250; // Gives about a 10 second delay for the spawning of the gems 
     private final int REQUIRED_GEMS = 10;
     private final int TOTAL_ORCS = 8;
 
@@ -18,14 +18,14 @@ public class GrassWorld extends World {
         Player.setHealth(health);
         Player.setHasSword(hasSword);
 
-        // Add the player
+        // Adds the player to the maps
         player = new Player();
         addObject(player, getWidth() / 2, getHeight() / 2);
 
-        // Initial orc spawn
+        // spawns the orcs at the start of the game
         spawnInitialOrcs();
 
-        // Display score and health
+        // displays the score and health hud 
         showText("Score: " + score, 70, 20);
         showText("Health: " + health, 70, 40);
         showText("Gems Collected: " + totalGemsCollected + "/" + REQUIRED_GEMS, getWidth() - 100, 30);
@@ -38,7 +38,7 @@ public class GrassWorld extends World {
     }
 
     private void spawnOrc() {
-        Orc orc = new Orc(true); // Fast orcs for final level
+        Orc orc = new Orc(true); // makes the orcs faster 
         int margin = 100;
         int x, y;
         boolean validPosition;
@@ -48,12 +48,12 @@ public class GrassWorld extends World {
             x = margin + Greenfoot.getRandomNumber(getWidth() - 2 * margin);
             y = margin + Greenfoot.getRandomNumber(getHeight() - 2 * margin);
 
-            // Check distance from player
+            // checks the distance from the player so it doesnt spawn on them
             int dx = x - player.getX();
             int dy = y - player.getY();
             double distanceToPlayer = Math.sqrt(dx * dx + dy * dy);
 
-            if (distanceToPlayer < 200) { // Minimum spawn distance from player
+            if (distanceToPlayer < 200) { // sets minimum distance and sees if its a vailid position 
                 validPosition = false;
             }
         } while (!validPosition);
@@ -74,11 +74,10 @@ public class GrassWorld extends World {
         updateHUD();
         maintainOrcCount();
         handleGemSpawning();
-        checkVictory();
     }
 
     private void maintainOrcCount() {
-        // Count current orcs
+        // Counts current orcs
         int currentOrcs = getObjects(Orc.class).size();
         // Spawn new orcs if needed
         if (currentOrcs < TOTAL_ORCS) {
@@ -106,15 +105,11 @@ public class GrassWorld extends World {
         totalGemsCollected++;
         updateHUD();
         
-        // Check if all gems are collected
+        // Checks to see if the player has collected all the gems 
         if (totalGemsCollected >= REQUIRED_GEMS) {
-            ShopWorld.setCurrentLevel(4); // Set to final level complete
+            ShopWorld.setCurrentLevel(4); // Sets to the victory world.
             Greenfoot.setWorld(new VictoryWorld(playerScore));
         }
-    }
-
-    private void checkVictory() {
-        // This can be removed or left empty since victory is checked in increaseScore
     }
 
     public void showGameOver() {
