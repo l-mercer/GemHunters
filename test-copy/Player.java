@@ -158,8 +158,16 @@ public class Player extends Actor {
     }
     
     private void die() {
-        System.out.println("Player has died!");
-        Greenfoot.stop(); // Stop the game (or add a game-over screen)
+        if (getWorld() instanceof MyWorld) {
+            ((MyWorld) getWorld()).showGameOver();
+        } else if (getWorld() instanceof ForestWorld) {
+            ((ForestWorld) getWorld()).showGameOver();
+        } else if (getWorld() instanceof FortWorld) {
+            ((FortWorld) getWorld()).showGameOver();
+        } else if (getWorld() instanceof GrassWorld) {
+            ((GrassWorld) getWorld()).showGameOver();
+        }
+        Greenfoot.stop();
     }
 
     private void checkCollisions() {
@@ -167,11 +175,16 @@ public class Player extends Actor {
         if (gem != null) {
             getWorld().removeObject(gem);
             Gem.playSound();
-            // Check which world we're in and call the appropriate method
+            
+            // Make sure to increase score for any world type
             if (getWorld() instanceof MyWorld) {
                 ((MyWorld) getWorld()).increaseScore();
             } else if (getWorld() instanceof ForestWorld) {
                 ((ForestWorld) getWorld()).increaseScore();
+            } else if (getWorld() instanceof FortWorld) {
+                ((FortWorld) getWorld()).increaseScore();
+            } else if (getWorld() instanceof GrassWorld) {
+                ((GrassWorld) getWorld()).increaseScore();
             }
         }
 

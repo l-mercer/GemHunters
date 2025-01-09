@@ -83,16 +83,17 @@ public class ShopWorld extends World {
         if (label.equals("Next Level")) {
             switch(currentLevel) {
                 case 1:
-                    // After first level, go to level 2 (Forest)
                     Greenfoot.setWorld(new ForestWorld(playerScore, Player.getHealth(), Player.hasSword()));
                     break;
                 case 2:
-                    // After second level, go to level 3 (Fort)
                     Greenfoot.setWorld(new FortWorld(playerScore, Player.getHealth(), Player.hasSword()));
                     break;
                 case 3:
-                    // After final level, start new game
-                    currentLevel = 0; // Reset to 0 because MyWorld will increment it
+                    Greenfoot.setWorld(new GrassWorld(playerScore, Player.getHealth(), Player.hasSword()));
+                    break;
+                case 4:
+                    // Game completed, return to start
+                    currentLevel = 1;
                     Greenfoot.setWorld(new MyWorld());
                     break;
             }

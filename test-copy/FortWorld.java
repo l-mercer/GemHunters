@@ -5,31 +5,29 @@ public class FortWorld extends World {
     private int playerScore;
 
     public FortWorld(int score, int health, boolean hasSword) {
-        super(1058, 531, 1); // Same size as other levels
-
+        super(1058, 531, 1);
         setBackground("Assets/Levels/FortLevel.jpg");
         
-        spawnOrcs(); // We can keep orcs as enemies or modify this later
-        spawnGems();
-
-        // Set player score and health
-        playerScore = score;
+        playerScore = score;  // Start with previous score
         Player.setHealth(health);
         Player.setHasSword(hasSword);
+
+        spawnOrcs();
+        spawnGems();
 
         // Add the player to the world
         player = new Player();
         addObject(player, getWidth() / 2, getHeight() / 2);
 
-        // Display score and health
-        showText("Score: " + score, 70, 20);
-        showText("Health: " + health, 70, 40);
+        // Display initial score and health
+        updateHUD();
     }
     
     private void spawnOrcs() {
-        // Spawn 6 Orcs for increased difficulty
-        for (int i = 0; i < 6; i++) {
-            Orc orc = new Orc();
+        // Spawn 11 Orcs (increased from 6)
+        for (int i = 0; i < 11; i++) {
+            Orc orc = new Orc(true);  // Create faster orcs
+            // Random position within safe margins
             int x = 100 + Greenfoot.getRandomNumber(getWidth() - 200);
             int y = 100 + Greenfoot.getRandomNumber(getHeight() - 200);
             
@@ -60,13 +58,25 @@ public class FortWorld extends World {
 
     public void increaseScore() {
         playerScore++;
-        showText("Score: " + playerScore, 70, 20);
+        updateHUD();  // Make sure HUD updates when score changes
+        
+        // Check if all gems are collected
+        if (getObjects(Gem.class).isEmpty()) {
+            ShopWorld.setCurrentLevel(3);
+            Greenfoot.setWorld(new ShopWorld(playerScore));
+        }
     }
 
     private void checkNextLevel() {
         if (getObjects(Gem.class).isEmpty()) {
-            ShopWorld.setCurrentLevel(3); // Set to level 3 complete
+            ShopWorld.setCurrentLevel(3);
             Greenfoot.setWorld(new ShopWorld(playerScore));
         }
+    }
+
+    public void showGameOver() {
+        Greenfoot.playSound("game-over.mp3");
+        showText("Game Over!", getWidth() / 2, getHeight() / 2);
+        Greenfoot.stop();
     }
 } 

@@ -11,12 +11,20 @@ public class Orc extends Actor {
     private int damage = 10;
     private int health = 100;
     private int attackCooldown = 0;
-    private int moveSpeed = 1;
+    private int moveSpeed = 2;
     private int turnCounter = 0;
     private boolean facingRight = true;
     private String currentDirection = "right"; // Can be "up", "down", "left", "right"
+    private int minMoveTime = 120;  // Minimum time to move in one direction (2 seconds)
+    private int maxMoveTime = 240;  // Maximum time to move in one direction (4 seconds)
+    private int currentMoveTime;    // How long to move in current direction
+    private int detectionRange = 200;  // How far the orc can "see" the player
+    private int followSpeed = 1;      // Speed when following player
+    private int wanderSpeed = 1;      // Speed when wandering
+    private int moveCounter = 0;      // Counter for slowing down movement
+    private int moveDelay = 2;        // Default delay for normal speed
 
-    public Orc() {
+    public Orc(boolean isFaster) {
         // Load walk frames (no flipping - keep original orientation)
         for (int i = 1; i <= 8; i++) {
             GreenfootImage img = new GreenfootImage("Orc/Orc_Walk/orc_walk_frame_" + i + ".png");
@@ -34,6 +42,16 @@ public class Orc extends Actor {
         setImage(walkFrames.get(0));
         facingRight = true;  // Changed: Start facing right (original sprite orientation)
         currentDirection = "right"; // Changed: Start moving right
+        currentMoveTime = minMoveTime + Greenfoot.getRandomNumber(maxMoveTime - minMoveTime);
+        
+        if (isFaster) {
+            moveDelay = 1;  // Move twice as fast
+        }
+    }
+
+    // Add default constructor
+    public Orc() {
+        this(false);  // Normal speed by default
     }
 
     public void act() {
@@ -79,77 +97,151 @@ public class Orc extends Actor {
     }
 
     private void randomMovement() {
+        Player player = getNearestPlayer();
+        
+        // If player is within detection range, follow them
+        if (player != null && getDistance(player) < detectionRange) {
+            followPlayer(player);
+        } else {
+            wander();  // Normal random movement when no player is near
+        }
+        
+        // Keep the edge checking
+        checkWorldBounds();
+    }
+
+    private Player getNearestPlayer() {
+        return (Player) getObjectsInRange(detectionRange, Player.class).stream()
+            .findFirst()
+            .orElse(null);
+    }
+
+    private void followPlayer(Player player) {
+        // Calculate direction to player
+        int dx = player.getX() - getX();
+        int dy = player.getY() - getY();
+        
+        // Update facing direction based on player position
+        if (dx > 0 && !facingRight) {
+            flipSprites();
+            facingRight = true;
+        } else if (dx < 0 && facingRight) {
+            flipSprites();
+            facingRight = false;
+        }
+
+        moveCounter++;
+        if (moveCounter >= moveDelay) {
+            moveCounter = 0;
+            // Move towards player
+            if (Math.abs(dx) > followSpeed) {
+                setLocation(getX() + (dx > 0 ? followSpeed : -followSpeed), getY());
+            }
+            if (Math.abs(dy) > followSpeed) {
+                setLocation(getX(), getY() + (dy > 0 ? followSpeed : -followSpeed));
+            }
+        }
+    }
+
+    private void wander() {
         turnCounter++;
         
-        if (turnCounter >= 60) {
+        // Only change direction after moving for the random time period
+        if (turnCounter >= currentMoveTime) {
             turnCounter = 0;
+            currentMoveTime = minMoveTime + Greenfoot.getRandomNumber(maxMoveTime - minMoveTime);
             
-            int direction = Greenfoot.getRandomNumber(4);
-            switch(direction) {
-                case 0: // Right
-                    currentDirection = "right";
-                    if (!facingRight) {  // CHANGED: Flip to face right when moving right
-                        flipSprites();
-                        facingRight = true;
-                    }
-                    break;
-                case 1: // Down
-                    currentDirection = "down";
-                    break;
-                case 2: // Left
-                    currentDirection = "left";
-                    if (facingRight) {  // CHANGED: Flip to face left when moving left
-                        flipSprites();
-                        facingRight = false;
-                    }
-                    break;
-                case 3: // Up
-                    currentDirection = "up";
-                    break;
+            // 70% chance to keep moving in same direction
+            if (Greenfoot.getRandomNumber(100) > 70) {
+                changeDirection();
             }
         }
         
-        // Move based on direction without rotating the sprite
-        switch(currentDirection) {
-            case "right":
-                setLocation(getX() + moveSpeed, getY());
-                break;
-            case "left":
-                setLocation(getX() - moveSpeed, getY());
-                break;
-            case "up":
-                setLocation(getX(), getY() - moveSpeed);
-                break;
-            case "down":
-                setLocation(getX(), getY() + moveSpeed);
-                break;
+        // Move in current direction at wander speed
+        move();
+    }
+
+    private void move() {
+        moveCounter++;
+        if (moveCounter >= moveDelay) {
+            moveCounter = 0;
+            switch(currentDirection) {
+                case "right":
+                    setLocation(getX() + wanderSpeed, getY());
+                    break;
+                case "left":
+                    setLocation(getX() - wanderSpeed, getY());
+                    break;
+                case "up":
+                    setLocation(getX(), getY() - wanderSpeed);
+                    break;
+                case "down":
+                    setLocation(getX(), getY() + wanderSpeed);
+                    break;
+            }
         }
-        
-        // World edge checking
-        World world = getWorld();
-        if (world != null) {
-            int margin = 50;
-            
-            // If near edges, change direction
-            if (getX() <= margin) {
+    }
+
+    private void changeDirection() {
+        int direction = Greenfoot.getRandomNumber(4);
+        switch(direction) {
+            case 0: // Right
                 currentDirection = "right";
-                if (!facingRight) {  // CHANGED: Flip to face right when moving right
+                if (!facingRight) {
                     flipSprites();
                     facingRight = true;
                 }
-            } else if (getX() >= world.getWidth() - margin) {
+                break;
+            case 1: // Down
+                currentDirection = "down";
+                break;
+            case 2: // Left
                 currentDirection = "left";
-                if (facingRight) {  // CHANGED: Flip to face left when moving left
+                if (facingRight) {
                     flipSprites();
                     facingRight = false;
                 }
+                break;
+            case 3: // Up
+                currentDirection = "up";
+                break;
+        }
+    }
+
+    private void checkWorldBounds() {
+        World world = getWorld();
+        if (world != null) {
+            int margin = 80;
+            
+            if (getX() <= margin) {
+                currentDirection = "right";
+                if (!facingRight) {
+                    flipSprites();
+                    facingRight = true;
+                }
+                turnCounter = 0;
+            } else if (getX() >= world.getWidth() - margin) {
+                currentDirection = "left";
+                if (facingRight) {
+                    flipSprites();
+                    facingRight = false;
+                }
+                turnCounter = 0;
             }
             if (getY() <= margin) {
                 currentDirection = "down";
+                turnCounter = 0;
             } else if (getY() >= world.getHeight() - margin) {
                 currentDirection = "up";
+                turnCounter = 0;
             }
         }
+    }
+
+    private double getDistance(Actor other) {
+        int dx = other.getX() - getX();
+        int dy = other.getY() - getY();
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     private void checkForPlayer() {

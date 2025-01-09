@@ -23,7 +23,15 @@ public class Button extends Actor {
     public void act() {
         // Detect mouse clicks on the button
         if (Greenfoot.mouseClicked(this)) {
-            ((ShopWorld) getWorld()).handleButtonClick(this);
+            if (getWorld() instanceof ShopWorld) {
+                ((ShopWorld) getWorld()).handleButtonClick(this);
+            } else if (getWorld() instanceof VictoryWorld) {
+                ((VictoryWorld) getWorld()).handleButtonClick(this);
+            }
         }
+    }
+
+    public boolean isClicked() {
+        return Greenfoot.mouseClicked(this);
     }
 }
